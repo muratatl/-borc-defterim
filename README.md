@@ -20,7 +20,7 @@ Dosyaların aynı dizin yapısında bulunması gerekir. GitHub Pages HTTPS üzer
 
 ## Çevrimdışı kullanım sınırı
 
-Service worker uygulama giriş sayfasını, manifesti ve ikonları önbelleğe alır. Daha önce çevrimiçi açılmış uygulama kabuğu internet yokken yeniden açılabilir. Cihazdaki yerel kayıtlar uygulama içinde kullanılmaya devam eder. Supabase oturum açma, hesap doğrulama, bulut yedekleme ve ekstre dosyaları için kullanılan harici analiz kütüphaneleri internet gerektirir.
+Service worker uygulama giriş sayfasını, manifesti ve ikonları önbelleğe alır. Daha önce çevrimiçi açılmış uygulama kabuğu internet yokken yeniden açılabilir. Cihazdaki yerel kayıtlar uygulama içinde kullanılmaya devam eder. Supabase oturum açma, hesap doğrulama ve bulut yedekleme internet gerektirir. Ekstre PDF/Excel analizinde kullanılan PDF.js, SheetJS ve OCR (Tesseract.js + tur/eng dil verisi) ilk kullanımda CDN üzerinden indirilir; dosyanın metin çıkarma/OCR işlemi tarayıcıda cihaz üzerinde yapılır ve ekstre dosyası analiz için uygulama sunucusuna yüklenmez. Bu nedenle OCR kütüphaneleri ve dil verisi daha önce indirilmemişse ilk analiz internet bağlantısı ister; tam çevrimdışı ilk kullanım bu sürümde garanti edilmez.
 
 Uygulama kabuğu veya çevrimdışı kaynaklar değiştiğinde `sw.js` içindeki `CACHE_NAME` sürümünü artırın. Yeni service worker kurulduğunda eski Borç Defterim V8 önbelleği otomatik temizlenir; diğer sitelerin önbelleklerine dokunulmaz.
 
