@@ -27,8 +27,3 @@ Uygulama kabuğu veya çevrimdışı kaynaklar değiştiğinde `sw.js` içindeki
 ## Güvenlik notu
 
 Ön yüz içinde yalnızca Supabase publishable/anon anahtarı bulunmalıdır. Service role anahtarı istemci dosyalarına eklenmemelidir. `borc_defterim_backup` tablosunda kullanıcı kimliği bazlı RLS politikaları ayrıca etkinleştirilmeli ve gerçek iki ayrı hesapla doğrulanmalıdır. Bu paketleme aşamasındaki testler gerçek Supabase RLS doğrulamasının yerine geçmez.
-
-## V8.1 arayüz geliştirmeleri
-- Takvimde gün seçimi: seçilen tarihin borç/abonelik ödemeleri ve günlük toplamı gösterilir. Kredi kartı son ödeme ve ekstre kesim hatırlatmaları ayrıca listelenir; tutarsız biçimde sıfır tutarlı hatırlatmalar ödeme toplamına eklenmez.
-- Ana ekranda kalan borç pasta grafiği: kredi kartları, ihtiyaç kredileri, taşıt/araç kredileri, konut kredileri ve diğer borçlar ayrı gösterilir. Kategori altındaki kayıtlar ve bakiyeleri de listelenir.
-- Yeni borç kaydında ihtiyaç, taşıt ve konut kredisi türleri seçilebilir. Eski “Kredi” kayıtları ihtiyaç/kredi finansmanı grubunda değerlendirilir.
