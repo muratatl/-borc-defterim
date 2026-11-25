@@ -27,3 +27,17 @@ Uygulama kabuğu veya çevrimdışı kaynaklar değiştiğinde `sw.js` içindeki
 ## Güvenlik notu
 
 Ön yüz içinde yalnızca Supabase publishable/anon anahtarı bulunmalıdır. Service role anahtarı istemci dosyalarına eklenmemelidir. `borc_defterim_backup` tablosunda kullanıcı kimliği bazlı RLS politikaları ayrıca etkinleştirilmeli ve gerçek iki ayrı hesapla doğrulanmalıdır. Bu paketleme aşamasındaki testler gerçek Supabase RLS doğrulamasının yerine geçmez.
+
+
+## V8.1 – Takvim ve borç dağılımı
+- Takvimde gün seçimi: seçilen tarihin ödemeleri, hatırlatmaları ve günlük ödeme toplamı gösterilir. Kart kesim/son ödeme hatırlatmaları tutarı bilinmediği için günlük ödeme toplamına katılmaz.
+- Ana ekranda kalan borç pasta grafiği: kredi kartları, ihtiyaç kredileri, taşıt kredileri, konut kredileri ve diğer borçlar ayrı gösterilir. Kategori altındaki kayıtlar ve bakiyeleri listelenir.
+- Düzenli kira aylık ödeme yükünde ve takvimde kalır; toplam borç, borç simülasyonu ve borç geçmişi hesabına dahil edilmez. Birikmiş kira borcu ayrı, tek seferlik borç kaydı olarak girilirse toplam borca dahil edilir.
+- Yeni borç kayıtlarında ihtiyaç, taşıt ve konut kredisi kategorileri seçilebilir.
+- Service worker önbellek sürümü `v8-shell-6` olarak artırıldı.
+
+## V8.2 – Ödeme durumu ve kategori etkileşimi
+- Takvim günleri, ilgili ayda kaydedilmiş borç ödemelerine göre ödendi, kısmen ödendi veya bekliyor şeklinde renklendirilir.
+- Seçilen günün borç ödemelerinde durum etiketi ve o ay kaydedilen ödeme tutarı gösterilir. Kart kesim/son ödeme tarihleri ve abonelikler hatırlatma olarak kalır; borç ödeme durumu hesabına karıştırılmaz.
+- Borç dağılımı grafiğinde kategori seçildiğinde yalnızca seçilen kategorinin kayıtları ve kalan bakiyeleri ayrıntı panelinde gösterilir.
+- Ödeme durumu eşleştirmesi, ödeme kaydının tarihi ve borç kaydının ayı üzerinden yapılır. Aynı ay içindeki birden fazla ödeme toplanır; tutar planlanan ödemeyi karşılıyorsa ödendi, bir kısmını karşılıyorsa kısmen ödendi gösterilir.
