@@ -41,3 +41,21 @@ Uygulama kabuğu veya çevrimdışı kaynaklar değiştiğinde `sw.js` içindeki
 - Seçilen günün borç ödemelerinde durum etiketi ve o ay kaydedilen ödeme tutarı gösterilir. Kart kesim/son ödeme tarihleri ve abonelikler hatırlatma olarak kalır; borç ödeme durumu hesabına karıştırılmaz.
 - Borç dağılımı grafiğinde kategori seçildiğinde yalnızca seçilen kategorinin kayıtları ve kalan bakiyeleri ayrıntı panelinde gösterilir.
 - Ödeme durumu eşleştirmesi, ödeme kaydının tarihi ve borç kaydının ayı üzerinden yapılır. Aynı ay içindeki birden fazla ödeme toplanır; tutar planlanan ödemeyi karşılıyorsa ödendi, bir kısmını karşılıyorsa kısmen ödendi gösterilir.
+
+## V8.3 – Kart bakiyesi ve ekstre harcama analizi
+- Kartın toplam kullanılan bakiyesi, ekstre dönem borcundan ayrıldı. Ekstrede limit ve kullanılabilir limit birlikte okunursa toplam kullanım `limit - kullanılabilir limit` olarak kaydedilir; dönem borcu ayrı `statementAmount` alanında tutulur.
+- Kart ödemesi toplam kullanılan bakiyeyi ödeme tutarı kadar azaltır ve bilinen kullanılabilir limiti aynı tutarda artırır. Örneğin 221.000 TL limit, 57.000 TL kullanılabilir limit ve 61.000 TL ödeme sonrası 118.000 TL kullanılabilir limit / 103.000 TL kullanım hesaplanır.
+- Kart düzenleme ekranında kullanılabilir limit bankadaki güncel değere göre düzeltilebilir; kartın geçmiş ödeme kayıtları korunur.
+- Ekstre sınıfları sağlık, market, akaryakıt, online alışveriş, giyim, yeme-içme, ulaşım, ev/faturalar, elektronik, abonelik, eğlence, kişisel bakım, eğitim, seyahat, nakit çekim ve diğer olarak genişletildi.
+- Tanınmayan işlemler “Diğer” olarak işaretlenir ve kullanıcı kategori seçimini aktarım öncesinde düzeltebilir. Kullanıcının seçtiği işyeri-kategori eşleşmesi cihazdaki yerel ayarlarda öğrenilmiş kural olarak saklanır.
+- Harcamalar ekranına aylık kategori pasta grafiği ve kategoriye dokununca ilgili işlemleri gösteren ayrıntı paneli eklendi.
+- Ekstre dosyaları cihazda işlenir; sunucuya yüklenmez. Service worker önbellek sürümü `v8-shell-7` olarak artırıldı.
+
+
+## V8.4 – Kredi kartı ödeme hesabı düzeltmesi (aday sürüm)
+- Kartın kullanılan bakiyesi, limit ve kullanılabilir limit birlikte mevcutsa `limit - kullanılabilir limit` üzerinden esas alınır. Böylece ekstre dönem borcu (`statementAmount`) ile toplam kart kullanımı birbirine karıştırılmaz.
+- Kart ödemesinde girilen gerçek tutar kaydedilir; ödeme tutarı ekstre borcunu aşsa bile toplam kullanılan bakiyeden düşülür. Kullanılabilir limit, ödeme tutarı kadar artırılır ve kart limitiyle sınırlandırılır.
+- Ekstre borcu ayrı azaltılır; toplam kullanım sıfırlanmadıkça kartın tamamı ödenmiş sayılmaz. Kullanılan bakiyeyi aşan ödeme ayrıca `creditBalance` olarak izlenir.
+- Son kart ödemesi düzenlenirken ödeme farkı kullanılabilir limite uygulanır; ödeme silinirken önceki kullanılabilir limit geri yüklenir.
+- Kart hesabı için 30 ek aritmetik kontrol dahil toplam 42 test çalıştırıldı. Bunlar yardımcı fonksiyon ve mevcut özellik testleridir; gerçek iPhone arayüz testi, canlı banka ekstresiyle uçtan uca test ve Supabase senkronizasyon testi değildir.
+- Service worker önbellek sürümü `v8-shell-8` olarak artırıldı.
