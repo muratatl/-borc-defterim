@@ -51,6 +51,32 @@ test('payment above used balance retains actual paid amount and caps available l
 for (let i=1;i<=20;i++) test(`payment arithmetic invariant case ${i}`, () => { const used=1000+i*137.25,available=500000-used,amount=Math.min(used,Math.round((i*31.17)*100)/100),c={limit:500000,availableLimit:available,amount:999,statementAmount:Math.max(0,amount/2)};const r=cardCtx.math(c,amount);assert(Math.abs(r.before-used)<0.011);assert(Math.abs(r.after-Math.max(0,used-amount))<0.011);assert(Math.abs(r.availableAfter-Math.min(500000,available+amount))<0.011); });
 
 
+
+// V8.5: month-based summary engine. It deliberately starts at the first day,
+// rather than today, so overdue obligations earlier in the month remain visible.
+const monthFns = html.match(/function monthOccurrences\(year,month\)[\s\S]*?function monthPayments\(\)/);
+assert(monthFns, 'month summary helpers not found');
+const monthCode = monthFns[0].replace(/function monthPayments\(\)[\s\S]*$/, '');
+const monthCtx = {
+  data: { debts:[], subscriptions:[], payments:[], expenses:[], cards:[] },
+  Number, Math, String,
+  dateStr: d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`,
+  parseDate: s => s ? new Date(s+'T00:00:00') : null,
+  monthDayDate: (day,base) => new Date(base.getFullYear(),base.getMonth(),Math.min(Math.max(Number(day)||1,1),new Date(base.getFullYear(),base.getMonth()+1,0).getDate())),
+  adjusted: d => new Date(d),
+  addMonthsClamped: (date,months) => new Date(date.getFullYear(),date.getMonth()+months,Math.min(date.getDate(),new Date(date.getFullYear(),date.getMonth()+months+1,0).getDate()))
+};
+vm.createContext(monthCtx); vm.runInContext(monthCode+'\nthis.summary=monthSummary;this.occ=monthOccurrences;',monthCtx);
+test('month engine includes recurring due dates earlier than today in the month', () => { monthCtx.data={debts:[{id:'r1',name:'Kira',recurring:true,day:5,monthly:5000,status:'active'}],subscriptions:[],payments:[],expenses:[],cards:[]}; const r=monthCtx.summary(2026,10); assert(r.plannedDebt===5000 && r.remainingDebt===5000); });
+test('partial payments reduce monthly remainder without losing planned amount', () => { monthCtx.data.payments=[{sourceId:'r1',type:'debt',date:'2026-11-02',amount:1000},{sourceId:'r1',type:'debt',date:'2026-11-20',amount:1000}]; const r=monthCtx.summary(2026,10); assert(r.plannedDebt===5000 && r.paidDebt===2000 && r.remainingDebt===3000); });
+test('overpayment clamps remaining monthly obligation at zero', () => { monthCtx.data.payments=[{sourceId:'r1',type:'debt',date:'2026-11-02',amount:6000}]; const r=monthCtx.summary(2026,10); assert(r.remainingDebt===0 && r.paidDebt===6000); });
+test('one-off debt due early in selected month is included', () => { monthCtx.data={debts:[{id:'o1',name:'Taksit',recurring:false,dueDate:'2026-11-03',amount:7500,remaining:7500,status:'active'}],subscriptions:[],payments:[],expenses:[],cards:[]}; const r=monthCtx.summary(2026,10); assert(r.plannedDebt===7500); });
+test('subscription is included only in its actual billing month', () => { monthCtx.data={debts:[],subscriptions:[{id:'s1',name:'Video',amount:300,frequency:'quarterly',nextDate:'2026-10-15',status:'active'}],payments:[],expenses:[],cards:[]}; assert(monthCtx.summary(2026,9).subscriptionsDue===300); assert(monthCtx.summary(2026,10).subscriptionsDue===0); });
+test('legacy statement without period key is flagged, not guessed into month total', () => { monthCtx.data={debts:[],subscriptions:[],payments:[],expenses:[],cards:[{id:'c1',status:'active',statementAmount:4200}]}; const r=monthCtx.summary(2026,10); assert(r.unlinkedStatements===1 && r.totalPlanned===0); });
+test('new card statement period key avoids legacy unlinked warning', () => { monthCtx.data.cards=[{id:'c1',status:'active',statementAmount:4200,statementPeriodKey:'2026-11'}]; assert(monthCtx.summary(2026,10).unlinkedStatements===0); });
+test('linked card statement is included in its actual due month only', () => { monthCtx.data.cards=[{id:'c1',status:'active',statementAmount:4200,statementPeriodKey:'2026-10',statementDueDate:'2026-11-20'}]; assert(monthCtx.summary(2026,10).cardStatementRemaining===4200 && monthCtx.summary(2026,10).totalPlanned===4200); assert(monthCtx.summary(2026,9).cardStatementRemaining===0); });
+test('month summary renderer and UI slot are wired', () => { assert(html.includes('function renderMonthSummary()') && html.includes('id="monthSummaryDetail"')); });
+
 for (const [status, name] of checks) console.log(`${status}: ${name}`);
 console.log(`\n${checks.filter(x=>x[0]==='PASS').length}/${checks.length} tests passed`);
 if (checks.some(x=>x[0]==='FAIL')) process.exit(1);

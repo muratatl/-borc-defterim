@@ -59,3 +59,14 @@ Uygulama kabuğu veya çevrimdışı kaynaklar değiştiğinde `sw.js` içindeki
 - Son kart ödemesi düzenlenirken ödeme farkı kullanılabilir limite uygulanır; ödeme silinirken önceki kullanılabilir limit geri yüklenir.
 - Kart hesabı için 30 ek aritmetik kontrol dahil toplam 42 test çalıştırıldı. Bunlar yardımcı fonksiyon ve mevcut özellik testleridir; gerçek iPhone arayüz testi, canlı banka ekstresiyle uçtan uca test ve Supabase senkronizasyon testi değildir.
 - Service worker önbellek sürümü `v8-shell-8` olarak artırıldı.
+
+
+## V8.5 – Aylık özet hesaplama motoru
+
+- Aylık ödeme planı artık ayın ilk gününden son gününe kadar hesaplanır; ayın başında vadesi geçmiş ama henüz ödenmemiş düzenli/tek seferlik borçlar ay toplamından kaybolmaz.
+- Borç planı, o ay kaydedilmiş borç ödemeleriyle karşılaştırılır. Kalan tutar sıfırın altına düşmez; fazla ödeme ayrıca gerçekleşen ödeme olarak korunur.
+- Abonelikler aylık ortalama maliyet olarak değil, gerçek ödeme döngülerine göre seçilen ayın vadesine dahil edilir. Gelir-bütçe görünümünde ise aktif aboneliklerin aylık karşılığı ayrı gösterilmeye devam eder.
+- Kart ekstresi dönem anahtarı olmayan eski kayıtlar tahmini olarak bir aya bağlanmaz; dönem eşleştirme uyarısı gösterilir. Ekstre Laboratuvarı kesim tarihini okuyabildiğinde `statementPeriodKey`, dönem tutarı ve son ödeme tarihi karta yazılır; kart ödemeleri de bu dönem anahtarını taşır.
+- Hesaplamalar cihazda, yerel veriler üzerinden yapılır. Eski yedeklerde yeni alanların bulunması zorunlu değildir.
+- Otomatik test paketi V8.5 aylık özet senaryolarıyla genişletildi; toplam 51/51 kontrol başarılı. Bu testler birim/aritmetik kontrolleridir; gerçek iPhone tarayıcısı, Supabase canlı senkronizasyonu ve takvim uygulaması testi değildir.
+- Service worker önbellek sürümü `v8-shell-9` olarak artırıldı.
